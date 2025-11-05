@@ -197,10 +197,32 @@ dlt.apply_changes(
        return spark.read.table("source")
    ```
 
-2. **Define tables multiple times** → Use different names
-3. **Hardcode environment values** → Use parameters
-4. **Skip data quality checks** → Apply expectations
-5. **Use development mode in production** → Set development: false
+2. **Using input_file_name() with Unity Catalog** ⚠️ CRITICAL
+   ```python
+   # ❌ DON'T - Not supported in Unity Catalog
+   .withColumn("source_file", F.input_file_name())
+
+   # ✅ DO - Use _metadata column
+   .withColumn("source_file", F.col("_metadata.file_path"))
+   ```
+
+   **Error you'll see:**
+   ```
+   UC_COMMAND_NOT_SUPPORTED.WITH_RECOMMENDATION
+   The command(s): input_file_name are not supported in Unity Catalog.
+   Please use _metadata.file_path instead.
+   ```
+
+   **Always use Unity Catalog metadata columns:**
+   - `_metadata.file_path` (replaces `input_file_name()`)
+   - `_metadata.file_name` (file name only)
+   - `_metadata.file_size` (file size in bytes)
+   - `_metadata.file_modification_time` (last modified timestamp)
+
+3. **Define tables multiple times** → Use different names
+4. **Hardcode environment values** → Use parameters
+5. **Skip data quality checks** → Apply expectations
+6. **Use development mode in production** → Set development: false
 
 ## Limitations Awareness
 

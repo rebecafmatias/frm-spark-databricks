@@ -93,6 +93,72 @@ GRANT USE SCHEMA ON SCHEMA production.sales TO `service_principal`;
 GRANT MODIFY ON TABLE production.sales.customers TO `service_principal`;
 ```
 
+## Unity Catalog Metadata Columns
+
+### File Metadata in Streaming Sources
+
+**⚠️ CRITICAL: Unity Catalog Compatibility**
+
+When using Unity Catalog, certain Spark functions are **NOT SUPPORTED** and must be replaced with `_metadata` column references.
+
+#### ❌ INCORRECT (Hive Metastore syntax):
+```python
+# These functions DO NOT work with Unity Catalog
+.withColumn("source_file", F.input_file_name())
+.withColumn("file_mod_time", F.input_file_block_start())
+.withColumn("file_length", F.input_file_block_length())
+```
+
+#### ✅ CORRECT (Unity Catalog syntax):
+```python
+# Use _metadata column instead
+.withColumn("source_file", F.col("_metadata.file_path"))
+.withColumn("file_mod_time", F.col("_metadata.file_modification_time"))
+.withColumn("file_size", F.col("_metadata.file_size"))
+```
+
+### Available _metadata Fields
+
+Unity Catalog provides these metadata fields for streaming sources:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `_metadata.file_path` | STRING | Full path to source file (replaces `input_file_name()`) |
+| `_metadata.file_name` | STRING | File name only (without path) |
+| `_metadata.file_size` | LONG | File size in bytes |
+| `_metadata.file_modification_time` | TIMESTAMP | File last modified timestamp |
+
+### Complete Example
+
+```python
+@dlt.table()
+def bronze_with_metadata():
+    return (
+        spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format", "json")
+        .load("/Volumes/catalog/schema/volume/data/")
+        # Unity Catalog compatible metadata
+        .withColumn("source_file", F.col("_metadata.file_path"))
+        .withColumn("file_name", F.col("_metadata.file_name"))
+        .withColumn("file_size", F.col("_metadata.file_size"))
+        .withColumn("file_modified_at", F.col("_metadata.file_modification_time"))
+        .withColumn("ingestion_timestamp", F.current_timestamp())
+    )
+```
+
+### Error Message
+
+If you use incompatible functions, you'll see:
+
+```
+UC_COMMAND_NOT_SUPPORTED.WITH_RECOMMENDATION
+The command(s): input_file_name are not supported in Unity Catalog.
+Please use _metadata.file_path instead.
+```
+
+**Solution:** Replace all `input_file_name()` with `F.col("_metadata.file_path")`
+
 ## Data Ingestion Capabilities
 
 ### Read from Unity Catalog Tables

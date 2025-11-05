@@ -414,6 +414,57 @@ def with_sequence():
 | **Schema changes** | Limited on streaming tables | Use materialized views |
 | **Cross-pipeline refs** | Not supported | Use Unity Catalog tables |
 
+## read_files() Syntax Constraints
+
+### Path Globbing Limitations
+
+**Limitation:** Certain glob patterns and options don't work as expected with `read_files()`
+
+```sql
+-- ❌ INVALID: pathGlobFilter parameter not supported
+SELECT * FROM read_files(
+  'abfss://container@storage.dfs.core.windows.net/path/*.json',
+  format => 'json',
+  pathGlobFilter => '*.json'  -- Error: Not a valid option
+)
+
+-- ❌ INVALID: Redundant wildcard in path
+SELECT * FROM read_files(
+  'abfss://container@storage.dfs.core.windows.net/path/*.json',
+  format => 'json'
+)  -- May cause unexpected behavior
+
+-- ✅ VALID: Use directory path with wildcard OR specific glob pattern
+SELECT * FROM read_files(
+  'abfss://container@storage.dfs.core.windows.net/path/*',
+  format => 'json'
+)
+
+-- ✅ VALID: Specific file pattern in path
+SELECT * FROM read_files(
+  'abfss://container@storage.dfs.core.windows.net/path/users_*.json',
+  format => 'json'
+)
+```
+
+**Key Rules:**
+- ❌ Don't use `pathGlobFilter =>` parameter (not supported in DLT)
+- ❌ Avoid `/*.json` at end of path (use `/*` for all files or specific pattern)
+- ✅ Use wildcard in path itself: `/path/*` or `/path/prefix_*.json`
+- ✅ Format parameter is required: `format => 'json'`
+
+**Working Patterns:**
+```sql
+-- Pattern 1: All files in directory
+'abfss://container@storage/path/*'
+
+-- Pattern 2: Files matching prefix
+'abfss://container@storage/path/users_*'
+
+-- Pattern 3: Specific subdirectories
+'abfss://container@storage/path/2024-*/*'
+```
+
 ## Best Practices
 
 ### ✅ DO
@@ -423,6 +474,8 @@ def with_sequence():
 3. **Test limits** in development
 4. **Monitor resource usage**
 5. **Follow recommended patterns**
+6. **Use `/*` for directory-based ingestion** (not `/*.json`)
+7. **Test `read_files()` patterns** in notebooks first
 
 ### ❌ DON'T
 
@@ -431,6 +484,8 @@ def with_sequence():
 3. **Don't define** datasets multiple times
 4. **Don't use** identity columns with CDC
 5. **Don't expect** external tool access
+6. **Don't use `pathGlobFilter` parameter** in `read_files()`
+7. **Don't add file extensions** to wildcard paths unless needed
 
 ## Getting Help
 
