@@ -1,15 +1,3 @@
--- Databricks notebook source
--- MAGIC %md
--- MAGIC # Silver Layer - Minimal Cleaning
--- MAGIC Simple quality checks and standardization
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Silver: Restaurants
-
--- COMMAND ----------
-
 CREATE OR REFRESH STREAMING LIVE TABLE silver_restaurants (
   CONSTRAINT valid_restaurant_id EXPECT (restaurant_id IS NOT NULL) ON VIOLATION DROP ROW,
   CONSTRAINT valid_name EXPECT (name IS NOT NULL) ON VIOLATION DROP ROW
@@ -32,13 +20,6 @@ AS SELECT
   ingestion_timestamp
 FROM STREAM(LIVE.bronze_restaurants);
 
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Silver: Ratings
-
--- COMMAND ----------
-
 CREATE OR REFRESH STREAMING LIVE TABLE silver_ratings (
   CONSTRAINT valid_rating_id EXPECT (rating_id IS NOT NULL) ON VIOLATION DROP ROW,
   CONSTRAINT valid_rating_range EXPECT (rating BETWEEN 0 AND 5) ON VIOLATION DROP ROW
@@ -52,13 +33,6 @@ AS SELECT
   timestamp AS rating_timestamp,
   ingestion_timestamp
 FROM STREAM(LIVE.bronze_ratings);
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Silver: Products
-
--- COMMAND ----------
 
 CREATE OR REFRESH STREAMING LIVE TABLE silver_products (
   CONSTRAINT valid_product_id EXPECT (product_id IS NOT NULL) ON VIOLATION DROP ROW,
@@ -81,13 +55,6 @@ AS SELECT
   is_gluten_free,
   ingestion_timestamp
 FROM STREAM(LIVE.bronze_products);
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Silver: Inventory
-
--- COMMAND ----------
 
 CREATE OR REFRESH STREAMING LIVE TABLE silver_inventory (
   CONSTRAINT valid_stock_id EXPECT (stock_id IS NOT NULL) ON VIOLATION DROP ROW,

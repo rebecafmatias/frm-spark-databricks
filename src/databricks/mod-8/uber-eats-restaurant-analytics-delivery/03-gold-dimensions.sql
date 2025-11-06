@@ -1,18 +1,4 @@
--- Databricks notebook source
--- MAGIC %md
--- MAGIC # Gold Layer - Dimensions
--- MAGIC Star schema dimension tables (SCD Type 1)
-
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Dimension: Restaurant
-
--- COMMAND ----------
-
-CREATE OR REFRESH LIVE TABLE dim_restaurant (
-  CONSTRAINT pk_restaurant EXPECT (restaurant_id IS NOT NULL) ON VIOLATION FAIL
-)
+CREATE OR REFRESH LIVE TABLE dim_restaurant
 COMMENT "Restaurant dimension - SCD Type 1"
 TBLPROPERTIES ("quality" = "gold", "layer" = "dimension")
 AS SELECT DISTINCT
@@ -29,18 +15,10 @@ AS SELECT DISTINCT
   average_rating,
   num_reviews,
   current_timestamp() AS updated_at
-FROM LIVE.silver_restaurants;
+FROM LIVE.silver_restaurants
+WHERE restaurant_id IS NOT NULL;
 
--- COMMAND ----------
-
--- MAGIC %md
--- MAGIC ## Dimension: Product
-
--- COMMAND ----------
-
-CREATE OR REFRESH LIVE TABLE dim_product (
-  CONSTRAINT pk_product EXPECT (product_id IS NOT NULL) ON VIOLATION FAIL
-)
+CREATE OR REFRESH LIVE TABLE dim_product
 COMMENT "Product dimension - SCD Type 1"
 TBLPROPERTIES ("quality" = "gold", "layer" = "dimension")
 AS SELECT DISTINCT
@@ -57,4 +35,5 @@ AS SELECT DISTINCT
   is_vegetarian,
   is_gluten_free,
   current_timestamp() AS updated_at
-FROM LIVE.silver_products;
+FROM LIVE.silver_products
+WHERE product_id IS NOT NULL;
