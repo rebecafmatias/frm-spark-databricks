@@ -15,7 +15,6 @@ services:
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
     ports:
       - "8080:8080"
-      - "7077:7077"
     volumes:
       - ${APP_SRC_PATH}:/opt/spark/jobs
       - ${APP_STORAGE_PATH}:/opt/spark/storage
@@ -84,7 +83,8 @@ services:
       - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/opt/spark/logs/events
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
     ports:
-      - "18080:18080"
+      - 18080:18080
+      - 4040:4040
     volumes:
       - ${APP_LOG_PATH}:/opt/spark/logs/events
       - ${APP_METRICS_PATH}:/opt/spark/metrics
