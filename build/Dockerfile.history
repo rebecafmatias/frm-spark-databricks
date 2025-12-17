@@ -1,47 +1,30 @@
-# Trocamos openjdk (descontinuado) por eclipse-temurin (padrão atual de mercado)
-FROM eclipse-temurin:17-jre-jammy
+# Alterado de jre para jdk para ter o comando 'jps'
+FROM eclipse-temurin:17-jdk-jammy
 
 ARG spark_version="3.5.0"
 ARG spark_home="/opt/spark"
 ARG spark_conf="/opt/spark/conf"
-ARG created_date="2025-12-17" 
-
-LABEL author="Rebeca"
-LABEL image="spark-history-server"
-LABEL version="${spark_version}"
 
 ENV SPARK_HOME="${spark_home}"
 ENV SPARK_VERSION="${spark_version}"
 ENV SPARK_CONF="${spark_conf}"
 ENV SPARK_LOG_DIR="/var/log/spark"
 ENV SPARK_HISTORY_UI_PORT="18080"
-ENV SPARK_EVENTLOG_ENABLED="true"
 ENV SPARK_HISTORY_FS_LOG_DIRECTORY="/tmp/spark-events"
-ENV SPARK_EVENT_LOG_DIR="${SPARK_HISTORY_FS_LOG_DIRECTORY}"
-ENV SPARK_DAEMON_MEMORY="2g"
-# Ajustado memory para evitar OOM no build se a maquina for pequena
-
 ENV DEBIAN_FRONTEND="noninteractive"
 
-# Instala utilitários necessários (netcat, etc)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    netcat-openbsd \
-    curl \
-    vim \
-    wget \
-    ssh && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends netcat-openbsd curl vim wget ssh && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Cria diretórios de log e garante permissão
+RUN mkdir -p /var/log/spark /tmp/spark-events && chmod -R 777 /var/log/spark /tmp/spark-events
 
 COPY config/history/scripts /opt
 COPY config/history/conf /opt
-
 RUN chmod 755 /opt/*.sh
 
-# Garante que o script install_spark.sh baixe e coloque o spark em /opt/spark
 RUN bash /opt/install_spark.sh
-
 ENV PATH="${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}"
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
