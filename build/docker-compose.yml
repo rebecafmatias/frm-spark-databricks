@@ -8,13 +8,15 @@ services:
     # Comando obrigatório para a imagem oficial do Apache
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
     environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Interface Web (Navegador)
+      - "7077:7077"  # Comunicação de Dados (RPC)
     volumes:
       - ${APP_SRC_PATH}:/opt/spark/jobs
       - ${APP_STORAGE_PATH}:/opt/spark/storage
@@ -27,6 +29,7 @@ services:
     image: owshq-spark:3.5.0
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
       - SPARK_WORKER_MEMORY=3G
       - SPARK_WORKER_CORES=2
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
@@ -44,6 +47,7 @@ services:
     image: owshq-spark:3.5.0
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
       - SPARK_WORKER_MEMORY=3G
       - SPARK_WORKER_CORES=2
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
@@ -61,6 +65,7 @@ services:
     image: owshq-spark:3.5.0
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
       - SPARK_WORKER_MEMORY=3G
       - SPARK_WORKER_CORES=2
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
@@ -76,15 +81,17 @@ services:
   spark-history-server:
     container_name: spark-history-server
     image: owshq-spark-history-server:3.5.0
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer
     environment:
+      - SPARK_CONF_DIR=/opt/spark/conf
       - SPARK_HISTORY_UI_PORT=18080
       - SPARK_DAEMON_MEMORY=2g
       - SPARK_HISTORY_FS_LOG_DIRECTORY=/opt/spark/logs/events
       - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/opt/spark/logs/events
       - SPARK_LOG_CONF=/opt/spark/conf/log4j2.properties
     ports:
-      - 18080:18080
-      - 4040:4040
+      - "18080:18080"
+      - "4040:4040"
     volumes:
       - ${APP_LOG_PATH}:/opt/spark/logs/events
       - ${APP_METRICS_PATH}:/opt/spark/metrics
