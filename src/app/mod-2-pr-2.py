@@ -19,8 +19,8 @@ spark = SparkSession.builder \
 
 sc = spark.sparkContext
 
-print(f"\n###########")
-print(f"\nSpark Version: {spark.version}")
+print(f"\n###########\n")
+print(f"Spark Version: {spark.version}")
 print(f"Application ID: {sc.applicationId}")
 print(f"Available cores: {sc.defaultParallelism}")
 print(f"\n###########\n")
@@ -28,3 +28,5 @@ print(f"\n###########\n")
 # TODO 3 = the spark code here
 
 # TODO 4 = stop the spark context
+
+spark.stop()
