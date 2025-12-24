@@ -10,6 +10,9 @@ from pyspark.sql import SparkSession
 # TODO 1 = create spark session
 
 spark = SparkSession.builder \
+    .appName("testingSpark") \
+    .config("spark.executer.memory","512m") \
+    .config("spark.driver.memory","1g") \
     .getOrCreate()
 
 # TODO 2 = create spark context
