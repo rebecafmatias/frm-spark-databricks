@@ -10,8 +10,17 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder \
     .getOrCreate()
 
-path_restaurants = "./storage/mysql/restaurants/01JS4W5A7YWTYRQKDA7F7N95VY.jsonl"
+path_restaurants = "/opt/spark/storage/mysql/restaurants/01JS4W5A7YWTYRQKDA7F7N95VY.jsonl"
 
-df_restaurants = spark.read.json(path_restaurants)
+df_restaurants = spark.read \
+    .option("multiline", "true") \
+    .option("mode", "PERMISSIVE") \
+    .json(path_restaurants)
+
+print(f"\n#########\n")
+df_restaurants.show(5)
+print(f"\n#########\n")
+df_restaurants.printSchema()
+print(f"\n#########\n")
 
 spark.stop()
