@@ -10,5 +10,8 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder \
     .getOrCreate()
 
+path_restaurants = "./storage/mysql/restaurants/01JS4W5A7YWTYRQKDA7F7N95VY.jsonl"
+
+df_restaurants = spark.read.json(path_restaurants)
 
 spark.stop()
