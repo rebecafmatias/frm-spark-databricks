@@ -4,7 +4,7 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   --deploy-mode client \
   /opt/spark/jobs/app/mod-2-pr-6-complex-transformation.py
 """
-
+from pyspark.sql import SparkSession
 
 # TODO 1. aggregations and grouping
 
