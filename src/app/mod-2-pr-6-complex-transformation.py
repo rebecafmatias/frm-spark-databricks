@@ -23,7 +23,7 @@ orders_df.printSchema()
 restaurants_df.groupBy("cuisine_type") \
     .count() \
     .orderBy(desc("count")) \
-    .show(5)
+    .show(5) ## Order by é uma operação mt custosa pelo shuffle
 
 # TODO 2. filtering aggregated
 
