@@ -6,6 +6,9 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
 """
 from pyspark.sql import SparkSession
 
+spark = SparkSession.builder \
+    .getOrCreate()
+
 # TODO 1. aggregations and grouping
 
 
