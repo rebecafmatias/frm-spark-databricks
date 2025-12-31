@@ -5,7 +5,7 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /opt/spark/jobs/app/mod-2-pr-6-complex-transformation.py
 """
 from pyspark.sql import SparkSession
-from pyspark.sql import desc
+from pyspark.sql.functions import desc
 
 spark = SparkSession.builder \
     .getOrCreate()
