@@ -44,7 +44,14 @@ print(f"\n#######################################\n")
 cuisine_stats.show(5)
 
 # TODO 2. filtering aggregated
-
+print(f"\n#######################################\n")
+cuisine_stats.filter(
+    (col("count")>10) &
+    (col("rating")>=4) &
+    (col("lowest")>=3.5)
+) \
+  .orderBy(desc(col("rating"))) \
+  .show(5)
 # TODO 3. joining datasets
 
 
