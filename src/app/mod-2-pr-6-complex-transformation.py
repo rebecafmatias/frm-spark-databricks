@@ -5,7 +5,7 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /opt/spark/jobs/app/mod-2-pr-6-complex-transformation.py
 """
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import desc,avg,count,col,max,min,round,desc,to_timestamp,dayofweek,year,month,regexp_extract
+from pyspark.sql.functions import desc,avg,count,col,max,min,round,desc,to_timestamp,dayofweek,year,month,regexp_extract,split
 
 spark = SparkSession.builder \
     .getOrCreate()
@@ -81,5 +81,15 @@ orders_with_date = orders_df.select(
 )
 
 orders_with_date.show(3)
+
+addres_extraction = restaurants_df.select(
+    "name",
+    "address",
+    regexp_extract("address",r"([A-Za-z ]+) - [A-Z]{2}",1).alias("extracted_city"),
+    split("address","\n").getItem(0).alias("street_address"),
+    split("address","\n").getItem(2).alias("zipcode")
+)
+
+addres_extraction.show(5)
 
 spark.stop()
