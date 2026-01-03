@@ -5,7 +5,8 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /opt/spark/jobs/app/mod-2-pr-6-complex-transformation.py
 """
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import desc
+from pyspark.sql.functions import desc,avg,count,col,sum,max,min,round,desc
+from pyspark.sql.functions import concat,lit,when,expr
 
 spark = SparkSession.builder \
     .getOrCreate()
@@ -25,6 +26,20 @@ restaurants_df.groupBy("cuisine_type") \
     .orderBy(desc("count")) \
     .show(5) ## Order by é uma operação mt custosa pelo shuffle
 
+cuisine_stats = restaurants_df \
+  .groupBy("cuisine_type") \
+  .agg(
+    count() \
+    .alias("count"),
+    round(avg("average_rating"),2) \
+    .alias("rating"),
+    max("average_rating") \
+    .alias("highest"),
+    min("average_rating") \
+    .alias("lowest")
+  ) \
+  .orderBy(desc("rating")).show(5)
+
 # TODO 2. filtering aggregated
 
 # TODO 3. joining datasets
@@ -32,3 +47,4 @@ restaurants_df.groupBy("cuisine_type") \
 
 # TODO 4. advanced functions
 
+spark.stop()
