@@ -23,8 +23,8 @@ orders_df.printSchema()
 
 restaurants_df.groupBy("cuisine_type") \
     .count() \
-    .orderBy(desc("count")) \
-    .show(5) ## Order by é uma operação mt custosa pelo shuffle
+    .orderBy(desc("count")) #\
+    #.show(5) ## Order by é uma operação mt custosa pelo shuffle
 
 cuisine_stats = restaurants_df \
   .groupBy("cuisine_type") \
@@ -41,7 +41,7 @@ cuisine_stats = restaurants_df \
   .orderBy(desc("rating")) # Preocupação com order by por shuffle
 
 print(f"\n#######################################\n")
-cuisine_stats.show(5)
+# cuisine_stats.show(5)
 
 # TODO 2. filtering aggregated
 print(f"\n#######################################\n")
@@ -50,10 +50,25 @@ cuisine_stats.filter(
     (col("rating")>=4) &
     (col("lowest")>=3.5)
 ) \
-  .orderBy(desc(col("rating"))) \
-  .show(5)
+  .orderBy(desc(col("rating"))) #\
+  #.show(5)
 # TODO 3. joining datasets
 
+# restaurants_df.select("cnpj","name").show(3)
+# orders_df.select("order_id","restaurant_key").show(3)
+
+df_orders_merged = orders_df.join(
+    restaurants_df,
+    orders_df.restaurant_key==restaurants_df.cnpj,
+    "inner"
+) \
+  .select(
+      col("order_id"),
+      col("name").alias("restaurant"),
+      col("cuisine_type"),
+      col("total_amount")
+  )
+df_orders_merged.show(3)
 
 # TODO 4. advanced functions
 
