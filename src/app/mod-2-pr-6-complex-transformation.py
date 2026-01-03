@@ -5,7 +5,7 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /opt/spark/jobs/app/mod-2-pr-6-complex-transformation.py
 """
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import desc,avg,count,col,sum,max,min,round,desc
+from pyspark.sql.functions import desc,avg,count,col,sum,max,min,round,desc,to_timestamp
 from pyspark.sql.functions import concat,lit,when,expr
 
 spark = SparkSession.builder \
@@ -68,8 +68,16 @@ df_orders_merged = orders_df.join(
       col("cuisine_type"),
       col("total_amount")
   )
-df_orders_merged.show(3)
+# df_orders_merged.show(3)
 
 # TODO 4. advanced functions
+
+orders_with_date = orders_df.select(
+    "order_id",
+    "order_date",
+    to_timestamp("order_date").alias("timestamp")
+)
+
+orders_with_date.show(3)
 
 spark.stop()
