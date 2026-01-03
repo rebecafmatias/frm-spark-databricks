@@ -29,7 +29,7 @@ restaurants_df.groupBy("cuisine_type") \
 cuisine_stats = restaurants_df \
   .groupBy("cuisine_type") \
   .agg(
-    count() \
+    count("*") \
     .alias("count"),
     round(avg("average_rating"),2) \
     .alias("rating"),
@@ -38,7 +38,10 @@ cuisine_stats = restaurants_df \
     min("average_rating") \
     .alias("lowest")
   ) \
-  .orderBy(desc("rating")).show(5)
+  .orderBy(desc("rating")) # Preocupação com order by por shuffle
+
+print(f"\n#######################################\n")
+cuisine_stats.show(5)
 
 # TODO 2. filtering aggregated
 
